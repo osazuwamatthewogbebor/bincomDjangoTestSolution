@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 from decouple import config
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool) 
 
-ALLOWED_HOSTS = ['osazuwamatthewogbebor.pythonanywhere.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['.render.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -43,7 +44,7 @@ INSTALLED_APPS = [
     'election_results'
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://osazuwamatthewogbebor.pythonanywhere.com']
+CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
