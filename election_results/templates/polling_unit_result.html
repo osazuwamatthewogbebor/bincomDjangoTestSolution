@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Polling Unit Results{% endblock title %}
+
+{% block content %}
+    <div class="container mt-3">
+        <h2 class="mb-4 text-center">View Polling Unit Results</h2>
+
+        <form method="GET" action="" class="row g-3 border p-4 bg-white rounded shadow-sm">
+            <div class="col-md-6">
+                <label for="state" class="form-label">State</label>
+                <select id="state" name="state" class="form-select">
+                    <option value="">-- Select State --</option>
+                    {% for state in form.fields.state.queryset %}
+                        <option value="{{ state.state_id }}" {% if state.state_id|stringformat:"s" == request.GET.state %}selected{% endif %}>{{ state.state_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="lga" class="form-label">LGA</label>
+                <select id="lga" name="lga" class="form-select">
+                    <option value="">-- Select LGA --</option>
+                    {% if form.fields.lga.queryset %}
+                        {% for lga in form.fields.lga.queryset %}
+                            <option value="{{ lga.lga_id }}" {% if lga.lga_id|stringformat:"s" == request.GET.lga %}selected{% endif %}>{{ lga.lga_name }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="ward" class="form-label">Ward</label>
+                <select id="ward" name="ward" class="form-select">
+                    <option value="">-- Select Ward --</option>
+                    {% if form.fields.ward.queryset %}
+                        {% for ward in form.fields.ward.queryset %}
+                            <option value="{{ ward.ward_id }}" {% if ward.ward_id|stringformat:"s" == request.GET.ward %}selected{% endif %}>{{ ward.ward_name }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="polling_unit" class="form-label">Polling Unit</label>
+                <select id="polling_unit" name="polling_unit" class="form-select">
+                    <option value="">-- Select Polling Unit --</option>
+                    {% if form.fields.polling_unit.queryset %}
+                        {% for pu in form.fields.polling_unit.queryset %}
+                            <option value="{{ pu.uniqueid }}" {% if pu.uniqueid|stringformat:"s" == selected_pu %}selected{% endif %}>{{ pu.polling_unit_name }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+
+            <div class="col-12 text-center">
+                <button type="submit" class="btn btn-primary">View Results</button>
+            </div>
+        </form>
+
+        {% if results %}
+            <div class="mt-5">
+                <h4 class="text-center">Results for {{polling_unit_name|upper}} Polling Unit</h4>
+                <table class="table table-bordered mt-3">
+                    <thead>
+                        <tr>
+                            <th>Party</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in results %}
+                            <tr>
+                                <td>{{ r.party_abbreviation }}</td>
+                                <td>{{ r.party_score }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% elif selected_pu %}
+            <p style="color: red;">No results found for the selected polling unit.</p>
+        {% endif %}
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function () {
+    $('#state').change(function () {
+        let state_id = $(this).val();
+        $('#lga').html('<option value="">Loading...</option>');
+        $('#ward').html('<option value="">-- Select Ward --</option>');
+        $('#polling_unit').html('<option value="">-- Select Polling Unit --</option>');
+
+        if (state_id) {
+            $.getJSON('/api/lgas/', {state_id: state_id}, function (data) {
+                let options = '<option value="">-- Select LGA --</option>';
+                $.each(data, function (i, lga) {
+                    options += `<option value="${lga.lga_id}">${lga.lga_name}</option>`;
+                });
+                $('#lga').html(options);
+            });
+        } else {
+            $('#lga').html('<option value="">-- Select LGA --</option>');
+        }
+    });
+
+    
+    $('#lga').change(function () {
+        let lga_id = $(this).val();
+        $('#ward').html('<option value="">Loading...</option>');
+        $('#polling_unit').html('<option value="">-- Select Polling Unit --</option>');
+
+        if (lga_id) {
+            $.getJSON('/api/wards/', {lga_id: lga_id}, function (data) {
+                let options = '<option value="">-- Select Ward --</option>';
+                $.each(data, function (i, ward) {
+                    options += `<option value="${ward.ward_id}">${ward.ward_name}</option>`;
+                });
+                $('#ward').html(options);
+            });
+        } else {
+            $('#ward').html('<option value="">-- Select Ward --</option>');
+        }
+    });
+
+    
+    $('#ward').change(function () {
+        let ward_id = $(this).val();
+        $('#polling_unit').html('<option value="">Loading...</option>');
+
+        if (ward_id) {
+            $.getJSON('/api/polling-units/', {ward_id: ward_id}, function (data) {
+                let options = '<option value="">-- Select Polling Unit --</option>';
+                $.each(data, function (i, pu) {
+                    options += `<option value="${pu.uniqueid}">${pu.polling_unit_name}</option>`;
+                });
+                $('#polling_unit').html(options);
+            });
+        } else {
+            $('#polling_unit').html('<option value="">-- Cannot find ward id --</option>');
+        }
+    });
+});
+</script>
+{% endblock extra_js %}

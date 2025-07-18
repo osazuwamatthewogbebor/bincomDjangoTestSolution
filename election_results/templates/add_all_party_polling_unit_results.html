@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Party Polling Unit Results{% endblock title %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1 class="mb-4">Add Party Polling Unit Results</h1>
+        
+        <div class="card shadow mb-4">
+            <div class="card-body pt-4">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="lga" class="form-label">LGA</label>
+                        <select class="form-select" id="lga" name="lga" required>
+                            <option value="">-- Select LGA --</option>
+                            {% for lga in lgas %}
+                                <option value="{{ lga.uniqueid }}" {% if selected_lga_id and selected_lga_id|stringformat:"i" == lga.uniqueid|stringformat:"i" %}selected{% endif %}>
+                                    {{ lga.lga_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ward" class="form-label">Ward</label>
+                        <select class="form-select" id="ward" name="ward" required {% if not selected_lga_id %}disabled{% endif %}>
+                            <option value="">-- Select Ward --</option>
+
+                            {% if wards %} 
+                                {% for ward in wards %}
+                                    <option value="{{ ward.uniqueid }}" {% if selected_ward_id and selected_ward_id|stringformat:"i" == ward.uniqueid|stringformat:"i" %}selected{% endif %}>
+                                        {{ ward.ward_name }}
+                                    </option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="polling_unit" class="form-label">Polling Unit</label>
+                        <select class="form-select" id="polling_unit" name="polling_unit" required {% if not selected_ward_id %}disabled{% endif %}>
+                            <option value="">-- Select Polling Unit --</option>
+                          
+                            {% if polling_units %}
+                                {% for pu in polling_units %}
+                                    <option value="{{ pu.uniqueid }}" {% if selected_pu_id and selected_pu_id|stringformat:"i" == pu.uniqueid|stringformat:"i" %}selected{% endif %}>
+                                        {{ pu.polling_unit_name }}
+                                    </option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <hr>
+                    <h6>Party Scores:</h6>
+                    <div class="mb-3">
+                        <label for="entered_by_user_field" class="form-label">Entered By</label>
+                        <input type="text" name="entered_by_user" id="entered_by_user_field" class="form-control" required>
+                    </div>
+
+                    {% for party in parties %}
+                        <div class="mb-3 row align-items-center">
+                            <label for="score_{{ party.partyid }}" class="col-sm-4 col-form-label text-truncate">{{ party.partyid }}:</label>
+                            <div class="col-sm-8">
+                                <input type="number" name="score_{{ party.partyid }}" id="score_{{ party.partyid }}"
+                                       class="form-control" min="0" placeholder="Enter score for {{ party.partyid }}">
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-primary">Submit Results</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+    <script>
+        $(document).ready(function () {
+            const lgaSelect = $('#lga');
+            const wardSelect = $('#ward');
+            const pollingUnitSelect = $('#polling_unit');
+
+            const initialSelectedLgaId = "{{ selected_lga_id|default:'' }}".toString();
+            const initialSelectedWardId = "{{ selected_ward_id|default:'' }}".toString();
+            const initialSelectedPuId = "{{ selected_pu_id|default:'' }}".toString();
+
+            function loadWards(preselectWard = null) {
+                const lgaId = lgaSelect.val();
+                wardSelect.empty().append('<option value="">Loading Wards...</option>').prop('disabled', true);
+                pollingUnitSelect.empty().append('<option value="">-- Select Polling Unit --</option>').prop('disabled', true);
+
+                if (lgaId) {
+                    $.getJSON('/api/wards/', {lga_id: lgaId})
+                        .done(function (data) {
+                            wardSelect.empty().append('<option value="">-- Select Ward --</option>');
+                            if (Array.isArray(data)) {
+                                $.each(data, function (i, ward) {
+                                    const option = $('<option>', {
+                                        value: ward.ward_id,
+                                        text: ward.ward_name
+                                    });
+                                    wardSelect.append(option);
+                                });
+                                wardSelect.prop('disabled', false);
+
+                                if (preselectWard) {
+                                    wardSelect.val(preselectWard);
+                                }
+
+                                if (wardSelect.val()) {
+                                    loadPollingUnits(initialSelectedPuId);
+                                }
+                            } else {
+                                console.error('API did not return an array for wards:', data);
+                                wardSelect.empty().append('<option value="">Error: Invalid data format</option>');
+                            }
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            console.error('Error loading wards:', textStatus, errorThrown, jqXHR.responseText);
+                            wardSelect.empty().append('<option value="">Error loading wards</option>');
+                        });
+                } else {
+                    wardSelect.empty().append('<option value="">-- Select Ward --</option>').prop('disabled', true);
+                }
+            }
+
+            function loadPollingUnits(preselectPu = null) {
+                const wardId = wardSelect.val();
+                pollingUnitSelect.empty().append('<option value="">Loading Polling Units...</option>').prop('disabled', true);
+
+                if (wardId) {
+                    $.getJSON('/api/polling-units/', {ward_id: wardId})
+                        .done(function (data) {
+                            pollingUnitSelect.empty().append('<option value="">-- Select Polling Unit --</option>');
+                            if (Array.isArray(data)) {
+                                $.each(data, function (i, pu) {
+                                    const option = $('<option>', {
+                                        value: pu.uniqueid,
+                                        text: pu.polling_unit_name
+                                    });
+                                    pollingUnitSelect.append(option);
+                                });
+                                pollingUnitSelect.prop('disabled', false);
+
+                                if (preselectPu) {
+                                    pollingUnitSelect.val(preselectPu);
+                                }
+                            } else {
+                                console.error('API did not return an array for polling units:', data);
+                                pollingUnitSelect.empty().append('<option value="">Error: Invalid data format</option>');
+                            }
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            console.error('Error loading polling units:', textStatus, errorThrown, jqXHR.responseText);
+                            pollingUnitSelect.empty().append('<option value="">Error loading polling units</option>');
+                        });
+                } else {
+                    pollingUnitSelect.empty().append('<option value="">-- Select Polling Unit --</option>').prop('disabled', true);
+                }
+            }
+
+            // Event listeners
+            lgaSelect.on('change', function () {
+                loadWards();
+            });
+
+            wardSelect.on('change', function () {
+                loadPollingUnits(); 
+            });
+
+            if (initialSelectedLgaId) {
+                lgaSelect.val(initialSelectedLgaId); 
+
+                loadWards(initialSelectedWardId);
+            } else {
+                wardSelect.prop('disabled', true);
+                pollingUnitSelect.prop('disabled', true);
+            }
+        });
+    </script>
+{% endblock extra_js %}

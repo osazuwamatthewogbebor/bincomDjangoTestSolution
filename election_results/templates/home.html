@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to Electoral App{% endblock title %}
+
+{% block content %}
+    <div class="container mt-3">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="hero-section text-center mb-5">
+                    <h1 class="display-4 fw-bold text-primary">Welcome to the Electoral Results Dashboard</h1>
+                    <p class="lead text-muted mt-3">
+                        Your central hub for managing and viewing election polling unit and local government area results.
+                        Effortlessly add new results and gain insights into the electoral process.
+                    </p>
+                    <hr class="my-4">
+                    <p>
+                        Get started by exploring our key features below.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="col">
+                <div class="card h-100 shadow-sm feature-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-success mb-3"><i class="bi bi-bar-chart-fill me-2"></i> View Polling Unit Results</h5>
+                        <p class="card-text text-muted">Browse and analyze election results submitted from individual polling units across the state.</p>
+                        <a href="/polling-unit-result/" class="btn btn-outline-success stretched-link">Explore Results</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 shadow-sm feature-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-primary mb-3"><i class="bi bi-pencil-square me-2"></i> Add New Polling Unit Results</h5>
+                        <p class="card-text text-muted">Input and submit new election results from any polling unit into the system.</p>
+                        <a href="/polling-unit/new/" class="btn btn-outline-primary stretched-link">Add Results</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 shadow-sm feature-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-info mb-3"><i class="bi bi-building-fill me-2"></i> View LGA Results</h5>
+                        <p class="card-text text-muted">See aggregated election results at the Local Government Area level.</p>
+                        <a href="/lga-result/" class="btn btn-outline-info stretched-link">View LGA Totals</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %} 
