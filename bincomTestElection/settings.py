@@ -26,26 +26,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-8owaueak52u9rwhbogyim740md_q=02d%_lyf#92sgg21z7#om'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', default=False, cast=bool) 
+
+DEBUG = config('DEBUG', default=True, cast=bool) 
 
 
-
-
-# ALLOWED_HOSTS = []
-
-ALLOWED_HOSTS = [
-    '127.0.0.1', 
-    'localhost',
-    os.environ.get('RAILWAY_DEPLOYMENT_DOMAIN', ''),
-]
-
-# --- ADD THESE PRINT STATEMENTS ---
-print(f"DEBUG setting: {DEBUG}")
-print(f"RAILWAY_DEPLOYMENT_DOMAIN env var: {os.environ.get('RAILWAY_DEPLOYMENT_DOMAIN')}")
-# Check the final ALLOWED_HOSTS list
-print(f"Final ALLOWED_HOSTS: {ALLOWED_HOSTS}")
-# --- END ADDITIONS ---
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -57,12 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'election_results'
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8000',
-    'https://' + os.environ.get('RAILWAY_DEPLOYMENT_DOMAIN', ''), # For your main Railway domain
-    'https://*.up.railway.app', 
 ]
 
 MIDDLEWARE = [
@@ -99,27 +78,19 @@ WSGI_APPLICATION = 'bincomTestElection.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         # 'ENGINE': 'django.db.backends.mysql',
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': config('DB_NAME'),
-#         'USER': config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST': config('DB_HOST', default='localhost'),
-#         'PORT': config('DB_PORT', default='3306'),
-#         'OPTIONS': {
-#             'charset': 'utf8mb4', # Recommended for full Unicode support
-#         },
-#     }
-# }
-
 DATABASES = {
-    'default': dj_database_url.config(
-        default=config('DATABASE_URL', default='sqlite:///db.sqlite3'), # Use SQLite for local default
-        conn_max_age=600,
-        conn_health_checks=True # Recommended for PostgreSQL connections
-    )
+    'default': {
+        # 'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='3306'),
+        'OPTIONS': {
+            'charset': 'utf8mb4', # Recommended for full Unicode support
+        },
+    }
 }
 
 
@@ -158,7 +129,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+# STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
