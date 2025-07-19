@@ -1,0 +1,6 @@
+exportDB_NAME=osazuwamatthewog$default
+DB_USER=osazuwamatthewog
+DB_PASSWORD=pythonAnywhere$
+DB_HOST=osazuwamatthewogbebor.mysql.pythonanywhere-services.com
+DB_PORT=3306
+SECRET_KEY=e6d04c010d1f8ece8290f4dde35022f695f22a60f32b8409a704d0bbfb45bf30c5f38ac38ff974add8615ced5dc0d7fb4402
