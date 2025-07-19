@@ -27,14 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: don't run with debug turned on in production!
 SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', default=False, cast=bool) 
+DEBUG = config('DEBUG', default=True, cast=bool) 
 
-# --- ADD THESE PRINT STATEMENTS ---
-print(f"DEBUG setting: {DEBUG}")
-print(f"RAILWAY_DEPLOYMENT_DOMAIN env var: {os.environ.get('RAILWAY_DEPLOYMENT_DOMAIN')}")
-# Check the final ALLOWED_HOSTS list
-print(f"Final ALLOWED_HOSTS: {ALLOWED_HOSTS}")
-# --- END ADDITIONS ---
+
 
 
 # ALLOWED_HOSTS = []
@@ -44,6 +39,13 @@ ALLOWED_HOSTS = [
     'localhost',
     os.environ.get('RAILWAY_DEPLOYMENT_DOMAIN', ''),
 ]
+
+# --- ADD THESE PRINT STATEMENTS ---
+print(f"DEBUG setting: {DEBUG}")
+print(f"RAILWAY_DEPLOYMENT_DOMAIN env var: {os.environ.get('RAILWAY_DEPLOYMENT_DOMAIN')}")
+# Check the final ALLOWED_HOSTS list
+print(f"Final ALLOWED_HOSTS: {ALLOWED_HOSTS}")
+# --- END ADDITIONS ---
 
 # Application definition
 
